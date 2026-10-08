@@ -1,0 +1,16 @@
+node_modules/
+.next/
+dist/
+build/
+coverage/
+*.log
+
+# ไฟล์ความลับ ห้ามขึ้น Git
+.env
+.env.*
+!.env.example
+
+# ไฟล์ของระบบ/editor
+.DS_Store
+Thumbs.db
+.vscode/
