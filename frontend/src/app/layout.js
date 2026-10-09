@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { Inter, Noto_Sans_Thai } from 'next/font/google';
 import { AuthProvider } from '@/components/AuthProvider';
@@ -21,6 +22,22 @@ export const metadata = {
   title: 'Short URL | ย่อลิงก์ให้สั้น แชร์ได้ง่ายขึ้น',
   description: 'ระบบย่อลิงก์ รับลิงก์สั้นพร้อมใช้งานได้ทันที',
 };
+
+function NavFallback() {
+  return (
+    <div className="nav-wrap">
+      <nav className="nav-links" aria-label="เมนูหลัก">
+        <Link href="/" className="nav-link">
+          สร้างลิงก์
+        </Link>
+
+        <Link href="/history" className="nav-link">
+          ประวัติ
+        </Link>
+      </nav>
+    </div>
+  );
+}
 
 export default function RootLayout({ children }) {
   return (
@@ -46,8 +63,11 @@ export default function RootLayout({ children }) {
                   </svg>
                 </span>
                 Short URL
+
               </Link>
-              <NavLinks />
+              <Suspense fallback={<NavFallback />}>
+                <NavLinks />
+              </Suspense>
             </div>
           </header>
 
