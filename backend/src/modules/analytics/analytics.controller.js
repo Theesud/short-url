@@ -18,7 +18,7 @@ async function getUrlStats(req, res) {
   try {
     const url = await urlsService.findByShortCode(code);
 
-    if (!url) {
+    if (!url || url.userId !== req.user.id) {
       return res.status(404).json({ error: 'ไม่พบลิงก์นี้' });
     }
 

@@ -3,13 +3,14 @@ const { generateShortCode } = require('../../common/shortCode');
 
 const MAX_ATTEMPTS = 5;
 
-async function createShortUrl(originalUrl) {
+async function createShortUrl(originalUrl, userId = null) {
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
       return await prisma.url.create({
         data: {
           shortCode: generateShortCode(),
           originalUrl,
+          userId,
         },
       });
     } catch (error) {
@@ -25,17 +26,18 @@ async function findByShortCode(shortCode) {
   return prisma.url.findUnique({ where: { shortCode } });
 }
 
-async function listUrls({ page, limit }) {
+async function listUrls({ page, limit, userId }) {
   const skip = (page - 1) * limit;
+  const where = { userId };
 
   const [items, total] = await Promise.all([
     prisma.url.findMany({
-
+      where,
       orderBy: { createdAt: 'desc' },
       skip,
       take: limit,
     }),
-    prisma.url.count(),
+    prisma.url.count({ where }),
   ]);
 
   return { items, total };

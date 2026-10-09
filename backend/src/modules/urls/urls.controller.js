@@ -15,7 +15,8 @@ async function createUrl(req, res) {
   }
 
   try {
-    const url = await urlsService.createShortUrl(result.value);
+    const userId = req.user ? req.user.id : null;
+    const url = await urlsService.createShortUrl(result.value, userId);
 
     return res.status(201).json({
       id: url.id,
@@ -23,14 +24,15 @@ async function createUrl(req, res) {
       shortUrl: `${baseUrl}/${url.shortCode}`,
       originalUrl: url.originalUrl,
       createdAt: url.createdAt,
+      owned: userId !== null,
     });
   } catch (error) {
     console.error('Failed to create short URL:', error);
     return res
       .status(500)
+
       .json({ error: 'ไม่สามารถสร้าง Short URL ได้ กรุณาลองใหม่อีกครั้ง' });
   }
-
 }
 
 async function listUrls(req, res) {
@@ -42,7 +44,11 @@ async function listUrls(req, res) {
   const baseUrl = getBaseUrl(req);
 
   try {
-    const { items, total } = await urlsService.listUrls({ page, limit });
+    const { items, total } = await urlsService.listUrls({
+      page,
+      limit,
+      userId: req.user.id,
+    });
     const clickCounts = await analyticsService.countClicksByUrlIds(
       items.map((url) => url.id)
     );
@@ -57,13 +63,13 @@ async function listUrls(req, res) {
         clickCount: clickCounts[url.id] || 0,
       })),
       page,
+
       limit,
       total,
       totalPages: Math.max(1, Math.ceil(total / limit)),
     });
   } catch (error) {
     console.error('Failed to list URLs:', error);
-
     return res
       .status(500)
       .json({ error: 'ไม่สามารถโหลดประวัติได้ กรุณาลองใหม่อีกครั้ง' });

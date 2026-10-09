@@ -7,15 +7,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  urls         Url[]
+
+  @@map("users")
+}
+
 model Url {
   id          Int      @id @default(autoincrement())
   shortCode   String   @unique @map("short_code") @db.VarChar(32)
   originalUrl String   @map("original_url")
   createdAt   DateTime @default(now()) @map("created_at")
+  userId      Int?     @map("user_id")
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   clicks      Click[]
 
+  @@index([userId, createdAt])
   @@map("urls")
 }
+
 
 model Click {
   id        Int      @id @default(autoincrement())
