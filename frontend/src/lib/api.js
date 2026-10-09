@@ -30,6 +30,7 @@ async function request(path, options) {
 }
 
 export function createShortUrl(originalUrl) {
+
   return request('/api/urls', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -43,4 +44,11 @@ export function fetchUrls({ page = 1, limit = 10 } = {}) {
     limit: String(limit),
   });
   return request(`/api/urls?${query}`, { cache: 'no-store' });
+}
+
+export function fetchUrlStats(code, { days = 14 } = {}) {
+  const query = new URLSearchParams({ days: String(days) });
+  return request(`/api/urls/${encodeURIComponent(code)}/stats?${query}`, {
+    cache: 'no-store',
+  });
 }

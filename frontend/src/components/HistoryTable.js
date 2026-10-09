@@ -158,11 +158,19 @@ export default function HistoryTable() {
                   <span className="count-badge">{item.clickCount}</span>
                 </td>
                 <td>
-                  <CopyButton text={item.shortUrl} />
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <CopyButton text={item.shortUrl} />
+                    <Link
+                      href={`/stats/${item.shortCode}`}
+
+                      className="btn btn-secondary btn-small"
+                    >
+                      สถิติ
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}
-
           </tbody>
         </table>
       </div>
@@ -187,6 +195,7 @@ export default function HistoryTable() {
         >
           ถัดไป
         </button>
+
       </div>
     </div>
   );
