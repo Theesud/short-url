@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const prisma = require('./db/prisma');
 const urlsRoutes = require('./modules/urls/urls.routes');
+const analyticsRoutes = require('./modules/analytics/analytics.routes');
 const redirectRoutes = require('./modules/redirect/redirect.routes');
 const clickListener = require('./modules/analytics/clickListener');
 
@@ -26,10 +27,11 @@ app.get('/health', async (req, res) => {
 });
 
 app.use('/api/urls', urlsRoutes);
+app.use('/api/urls', analyticsRoutes);
 
 // ต้องอยู่หลังสุด เพราะ /:code จะดักทุกเส้นทางที่ยังไม่ถูกจับ
-app.use('/', redirectRoutes);
 
+app.use('/', redirectRoutes);
 
 app.use((err, req, res, next) => {
   if (err.type === 'entity.parse.failed') {

@@ -1,19 +1,10 @@
 const { validateOriginalUrl } = require('../../common/validateUrl');
+const { getBaseUrl, parsePositiveInt } = require('../../common/http');
 const urlsService = require('./urls.service');
 const analyticsService = require('../analytics/analytics.service');
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
-
-function getBaseUrl(req) {
-  const base = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
-  return base.replace(/\/+$/, '');
-}
-
-function parsePositiveInt(value, fallback) {
-  const parsed = Number.parseInt(value, 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
-}
 
 async function createUrl(req, res) {
   const baseUrl = getBaseUrl(req);
@@ -39,6 +30,7 @@ async function createUrl(req, res) {
       .status(500)
       .json({ error: 'ไม่สามารถสร้าง Short URL ได้ กรุณาลองใหม่อีกครั้ง' });
   }
+
 }
 
 async function listUrls(req, res) {
@@ -71,6 +63,7 @@ async function listUrls(req, res) {
     });
   } catch (error) {
     console.error('Failed to list URLs:', error);
+
     return res
       .status(500)
       .json({ error: 'ไม่สามารถโหลดประวัติได้ กรุณาลองใหม่อีกครั้ง' });
