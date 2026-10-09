@@ -1,10 +1,36 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import QRCode from 'qrcode';
+import './result-card.css';
 
 export default function ResultCard({ result }) {
   const inputRef = useRef(null);
   const [copied, setCopied] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState('');
+  const [qrFailed, setQrFailed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    QRCode.toDataURL(result.shortUrl, {
+      width: 480,
+      margin: 2,
+      errorCorrectionLevel: 'M',
+      color: { dark: '#14284b', light: '#ffffff' },
+    })
+      .then((url) => {
+        if (!cancelled) setQrDataUrl(url);
+      })
+      .catch(() => {
+        if (!cancelled) setQrFailed(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [result.shortUrl]);
+
 
   async function handleCopy() {
     try {
@@ -37,6 +63,7 @@ export default function ResultCard({ result }) {
         </button>
         <a
           className="btn btn-secondary"
+
           href={result.shortUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -48,6 +75,40 @@ export default function ResultCard({ result }) {
       <p className="result-original" title={result.originalUrl}>
         ปลายทาง: {result.originalUrl}
       </p>
+
+      <div className="qr-block">
+        {qrDataUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            className="qr-image"
+            src={qrDataUrl}
+            alt={`QR Code ของ ${result.shortUrl}`}
+            width={140}
+            height={140}
+          />
+        ) : (
+          <div className="qr-image qr-placeholder">
+            {qrFailed ? 'สร้าง QR ไม่สำเร็จ' : 'กำลังสร้าง QR...'}
+          </div>
+        )}
+
+        <div className="qr-text">
+          <p className="qr-title">QR Code</p>
+          <p className="qr-desc">
+            สแกนด้วยมือถือเพื่อเปิดลิงก์นี้ (นับเป็นการคลิกด้วย)
+
+          </p>
+          {qrDataUrl && (
+            <a
+              className="btn btn-secondary"
+              href={qrDataUrl}
+              download={`qr-${result.shortCode}.png`}
+            >
+              ดาวน์โหลด QR (PNG)
+            </a>
+          )}
+        </div>
+      </div>
     </section>
   );
 }
