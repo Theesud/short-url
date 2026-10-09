@@ -30,6 +30,7 @@ function CopyButton({ text }) {
   return (
     <button
       type="button"
+
       className="btn btn-secondary btn-small"
       onClick={handleCopy}
     >
@@ -48,12 +49,11 @@ export default function HistoryTable() {
   useEffect(() => {
     let cancelled = false;
 
-    setLoading(true);
-    setError('');
-
     fetchUrls({ page, limit: PAGE_SIZE })
       .then((result) => {
-        if (!cancelled) setData(result);
+        if (cancelled) return;
+        setData(result);
+        setError('');
       })
       .catch((err) => {
         if (!cancelled) setError(err.message);
@@ -63,11 +63,21 @@ export default function HistoryTable() {
       });
 
     return () => {
+
       cancelled = true;
     };
   }, [page, reloadKey]);
 
+  function goToPage(nextPage) {
+    if (nextPage === page) return;
+    setLoading(true);
+    setError('');
+    setPage(nextPage);
+  }
+
   function reload() {
+    setLoading(true);
+    setError('');
     setReloadKey((key) => key + 1);
   }
 
@@ -86,6 +96,7 @@ export default function HistoryTable() {
 
   if (!data) {
     return <div className="state-box">กำลังโหลดข้อมูล...</div>;
+
   }
 
   if (data.total === 0) {
@@ -118,6 +129,7 @@ export default function HistoryTable() {
           <thead>
             <tr>
               <th>Short URL</th>
+
               <th>URL ต้นฉบับ</th>
               <th>สร้างเมื่อ</th>
               <th className="cell-num">จำนวนคลิก</th>
@@ -150,6 +162,7 @@ export default function HistoryTable() {
                 </td>
               </tr>
             ))}
+
           </tbody>
         </table>
       </div>
@@ -158,7 +171,7 @@ export default function HistoryTable() {
         <button
           type="button"
           className="btn btn-secondary btn-small"
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          onClick={() => goToPage(Math.max(1, page - 1))}
           disabled={page <= 1 || loading}
         >
           ก่อนหน้า
@@ -169,7 +182,7 @@ export default function HistoryTable() {
         <button
           type="button"
           className="btn btn-secondary btn-small"
-          onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
+          onClick={() => goToPage(Math.min(data.totalPages, page + 1))}
           disabled={page >= data.totalPages || loading}
         >
           ถัดไป
