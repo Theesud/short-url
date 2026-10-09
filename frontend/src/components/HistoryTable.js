@@ -166,87 +166,96 @@ export default function HistoryTable() {
             </tr>
           </thead>
           <tbody>
-            {data.items.map((item) => (
-              <tr key={item.id}>
-                <td className="cell-short">
-                  <a
-                    href={item.shortUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {item.shortUrl}
-                  </a>
-                </td>
-                <td>
-                  <span className="cell-url" title={item.originalUrl}>
-                    {item.originalUrl}
-                  </span>
-                </td>
-                <td className="cell-date">{formatDate(item.createdAt)}</td>
-                <td className="cell-date">
-                  {item.expiresAt ? (
-                    <>
-                      {formatDate(item.expiresAt)}
-                      {item.expired && (
-                        <span className="badge badge-expired">หมดอายุแล้ว</span>
-                      )}
-                    </>
-                  ) : (
-                    'ไม่หมดอายุ'
-                  )}
-                </td>
-                <td className="cell-num">
-                  <span className="count-badge">{item.clickCount}</span>
-                </td>
-                <td>
-                  <div className="row-actions">
-                    {confirmingCode === item.shortCode ? (
+            {data.items.map((item) => {
+              const confirming = confirmingCode === item.shortCode;
+              const deleting = deletingCode === item.shortCode;
+
+              return (
+                <tr key={item.id}>
+                  <td className="cell-short">
+                    <a
+                      href={item.shortUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {item.shortUrl}
+                    </a>
+                  </td>
+                  <td>
+                    <span className="cell-url" title={item.originalUrl}>
+                      {item.originalUrl}
+                    </span>
+                  </td>
+                  <td className="cell-date">{formatDate(item.createdAt)}</td>
+                  <td className="cell-date">
+                    {item.expiresAt ? (
                       <>
-                        <span className="confirm-text">ลบลิงก์และสถิติ?</span>
-                        <button
-                          type="button"
-                          className="btn btn-danger btn-small"
-                          onClick={() => handleDelete(item)}
-                          disabled={deletingCode === item.shortCode}
-                        >
-                          {deletingCode === item.shortCode
-                            ? 'กำลังลบ...'
-                            : 'ยืนยันลบ'}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-secondary btn-small"
-                          onClick={() => setConfirmingCode(null)}
-                          disabled={deletingCode === item.shortCode}
-                        >
-                          ยกเลิก
-                        </button>
+                        {formatDate(item.expiresAt)}
+                        {item.expired && (
+                          <span className="badge badge-expired">
+                            หมดอายุแล้ว
+                          </span>
+                        )}
                       </>
                     ) : (
-                      <>
-                        <CopyButton text={item.shortUrl} />
-                        <Link
-                          href={`/stats/${item.shortCode}`}
-                          className="btn btn-secondary btn-small"
-                        >
-                          สถิติ
-                        </Link>
-                        <button
-                          type="button"
-                          className="btn btn-secondary btn-small"
-                          onClick={() => {
-                            setActionError('');
-                            setConfirmingCode(item.shortCode);
-                          }}
-                        >
-                          ลบ
-                        </button>
-                      </>
+                      'ไม่หมดอายุ'
                     )}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="cell-num">
+                    <span className="count-badge">{item.clickCount}</span>
+                  </td>
+                  <td>
+                    <div
+                      className={`row-actions${confirming ? ' is-confirming' : ''}`}
+                    >
+                      {confirming ? (
+                        <>
+                          <span className="confirm-text">ลบลิงก์และสถิติ?</span>
+                          <div className="confirm-buttons">
+                            <button
+                              type="button"
+                              className="btn btn-danger btn-small"
+                              onClick={() => handleDelete(item)}
+                              disabled={deleting}
+                            >
+                              {deleting ? 'กำลังลบ...' : 'ยืนยันลบ'}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-small"
+                              onClick={() => setConfirmingCode(null)}
+                              disabled={deleting}
+                            >
+                              ยกเลิก
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <CopyButton text={item.shortUrl} />
+                          <Link
+                            href={`/stats/${item.shortCode}`}
+                            className="btn btn-secondary btn-small"
+                          >
+                            สถิติ
+                          </Link>
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-small"
+                            onClick={() => {
+                              setActionError('');
+                              setConfirmingCode(item.shortCode);
+                            }}
+                          >
+                            ลบ
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

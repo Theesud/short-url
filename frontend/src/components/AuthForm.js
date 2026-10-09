@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from './AuthProvider';
+import PasswordInput from './PasswordInput';
 import './auth.css';
 
 const COPY = {
@@ -67,7 +68,14 @@ export default function AuthForm({ mode }) {
       } else {
         await login(email, password);
       }
-      // สำเร็จแล้ว useEffect ด้านบนจะพาไปหน้าแรกเอง
+
+      // สำเร็จ: ล้างฟอร์มและคืนสถานะปุ่มทันที
+      // (หน้านี้อาจถูกซ่อนไว้แล้วกลับมาแสดงอีกครั้ง โดยไม่ถูกสร้างใหม่)
+      setEmail('');
+      setPassword('');
+      setConfirm('');
+      setLoading(false);
+      // useEffect ด้านบนจะพาไปหน้าแรกเอง
     } catch (err) {
       setError(err.message);
       setLoading(false);
@@ -98,10 +106,8 @@ export default function AuthForm({ mode }) {
 
           <div className="field">
             <label htmlFor="password">รหัสผ่าน</label>
-            <input
+            <PasswordInput
               id="password"
-              className="text-input"
-              type="password"
               autoComplete={isRegister ? 'new-password' : 'current-password'}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
@@ -112,10 +118,8 @@ export default function AuthForm({ mode }) {
             <>
               <div className="field">
                 <label htmlFor="confirm">ยืนยันรหัสผ่าน</label>
-                <input
+                <PasswordInput
                   id="confirm"
-                  className="text-input"
-                  type="password"
                   autoComplete="new-password"
                   value={confirm}
                   onChange={(event) => setConfirm(event.target.value)}

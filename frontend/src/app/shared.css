@@ -96,6 +96,18 @@
   gap: 8px;
 }
 
+/* ตอนยืนยันการลบ: ข้อความอยู่บน ปุ่มอยู่ล่าง เพื่อไม่ให้เซลล์กว้างเกินตาราง */
+.row-actions.is-confirming {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 8px;
+}
+
 .confirm-text {
   font-size: 0.88rem;
   font-weight: 600;

@@ -58,3 +58,47 @@
   font-weight: 600;
   color: var(--navy-accent);
 }
+
+/* ช่องรหัสผ่านพร้อมปุ่มเปิด/ปิดตา */
+.password-wrap {
+  position: relative;
+}
+
+.text-input.password-input {
+  padding-right: 52px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.password-toggle:hover {
+  color: var(--navy);
+  background: var(--navy-tint);
+}
+
+.password-toggle:focus-visible {
+  outline: none;
+  color: var(--navy);
+  box-shadow: 0 0 0 3px var(--navy-soft);
+}
+
+/* ซ่อนปุ่มเปิดตาในตัวของ Microsoft Edge เพื่อไม่ให้ซ้ำกับของเรา */
+.password-input::-ms-reveal,
+.password-input::-ms-clear {
+  display: none;
+}

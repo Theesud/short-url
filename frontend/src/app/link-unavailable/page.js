@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 
 export const metadata = {
@@ -17,12 +18,12 @@ const MESSAGES = {
   },
 };
 
-export default async function LinkUnavailablePage({ searchParams }) {
+async function UnavailableContent({ searchParams }) {
   const { reason } = await searchParams;
   const message = MESSAGES[reason] || MESSAGES['not-found'];
 
   return (
-    <section className="unavailable-page container">
+    <>
       <div className="unavailable-mark" aria-hidden="true">
         {message.mark}
       </div>
@@ -31,6 +32,16 @@ export default async function LinkUnavailablePage({ searchParams }) {
       <Link href="/" className="btn btn-primary">
         ย่อลิงก์ของคุณเอง
       </Link>
+    </>
+  );
+}
+
+export default function LinkUnavailablePage({ searchParams }) {
+  return (
+    <section className="unavailable-page container">
+      <Suspense fallback={<div className="state-box">กำลังโหลดข้อมูล...</div>}>
+        <UnavailableContent searchParams={searchParams} />
+      </Suspense>
     </section>
   );
 }
