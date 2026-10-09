@@ -24,7 +24,7 @@ async function request(path, options = {}) {
   try {
     data = await response.json();
   } catch (error) {
-    // ตอบกลับมาไม่ใช่ JSON: ใช้ข้อความมาตรฐานด้านล่าง
+    // ตอบกลับมาไม่ใช่ JSON (เช่น 204 ไม่มีเนื้อหา): ปล่อยเป็น null
   }
 
   if (!response.ok) {
@@ -70,10 +70,14 @@ export function fetchMe() {
   return request('/api/auth/me', { cache: 'no-store' });
 }
 
-export function createShortUrl(originalUrl) {
+export function createShortUrl({ originalUrl, alias, expiresInDays }) {
+  const payload = { originalUrl };
+  if (alias) payload.alias = alias;
+  if (expiresInDays) payload.expiresInDays = Number(expiresInDays);
+
   return request('/api/urls', {
     method: 'POST',
-    ...jsonBody({ originalUrl }),
+    ...jsonBody(payload),
   });
 }
 
@@ -83,6 +87,12 @@ export function fetchUrls({ page = 1, limit = 10 } = {}) {
     limit: String(limit),
   });
   return request(`/api/urls?${query}`, { cache: 'no-store' });
+}
+
+export function deleteUrl(code) {
+  return request(`/api/urls/${encodeURIComponent(code)}`, {
+    method: 'DELETE',
+  });
 }
 
 export function fetchUrlStats(code, { days = 14 } = {}) {

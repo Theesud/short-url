@@ -3,6 +3,19 @@
 import { useState } from 'react';
 import { createShortUrl } from '@/lib/api';
 import ResultCard from './ResultCard';
+import './url-form.css';
+
+const SHORT_HOST = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000')
+  .replace(/^https?:\/\//, '')
+  .replace(/\/+$/, '');
+
+const EXPIRY_OPTIONS = [
+  { value: '', label: 'ไม่หมดอายุ' },
+  { value: '1', label: '1 วัน' },
+  { value: '7', label: '7 วัน' },
+  { value: '30', label: '30 วัน' },
+  { value: '90', label: '90 วัน' },
+];
 
 function normalizeInput(value) {
   const trimmed = value.trim();
@@ -14,6 +27,9 @@ function normalizeInput(value) {
 
 export default function UrlForm() {
   const [value, setValue] = useState('');
+  const [alias, setAlias] = useState('');
+  const [expiresInDays, setExpiresInDays] = useState('');
+  const [showOptions, setShowOptions] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
@@ -34,8 +50,13 @@ export default function UrlForm() {
     setError('');
 
     try {
-      const data = await createShortUrl(originalUrl);
+      const data = await createShortUrl({
+        originalUrl,
+        alias: alias.trim(),
+        expiresInDays,
+      });
       setResult(data);
+      setAlias('');
     } catch (err) {
       setResult(null);
       setError(err.message);
@@ -72,6 +93,55 @@ export default function UrlForm() {
             )}
           </button>
         </form>
+
+        <button
+          type="button"
+          className="options-toggle"
+          onClick={() => setShowOptions((open) => !open)}
+          aria-expanded={showOptions}
+        >
+          {showOptions ? 'ซ่อนตัวเลือกเพิ่มเติม ▴' : 'ตัวเลือกเพิ่มเติม ▾'}
+        </button>
+
+        {showOptions && (
+          <div className="options-panel">
+            <div className="field">
+              <label htmlFor="alias">ตั้งชื่อลิงก์เอง (ไม่บังคับ)</label>
+              <div className="alias-wrap">
+                <span className="alias-prefix">{SHORT_HOST}/</span>
+                <input
+                  id="alias"
+                  className="alias-input"
+                  type="text"
+                  autoComplete="off"
+                  maxLength={32}
+                  placeholder="promo-2026"
+                  value={alias}
+                  onChange={(event) => setAlias(event.target.value)}
+                />
+              </div>
+              <p className="field-hint">
+                3–32 ตัวอักษร ใช้ a-z, A-Z, 0-9, - และ _
+              </p>
+            </div>
+
+            <div className="field">
+              <label htmlFor="expiry">วันหมดอายุ</label>
+              <select
+                id="expiry"
+                className="text-input"
+                value={expiresInDays}
+                onChange={(event) => setExpiresInDays(event.target.value)}
+              >
+                {EXPIRY_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
 
         {error && (
           <p className="error-box" role="alert">

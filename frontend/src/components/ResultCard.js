@@ -5,6 +5,13 @@ import Link from 'next/link';
 import QRCode from 'qrcode';
 import './result-card.css';
 
+function formatDateTime(isoString) {
+  return new Intl.DateTimeFormat('th-TH', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(isoString));
+}
+
 export default function ResultCard({ result }) {
   const inputRef = useRef(null);
   const [copied, setCopied] = useState(false);
@@ -74,6 +81,12 @@ export default function ResultCard({ result }) {
       <p className="result-original" title={result.originalUrl}>
         ปลายทาง: {result.originalUrl}
       </p>
+
+      {result.expiresAt && (
+        <p className="result-note">
+          ลิงก์นี้จะหมดอายุเมื่อ {formatDateTime(result.expiresAt)}
+        </p>
+      )}
 
       {result.owned ? (
         <p className="result-note">

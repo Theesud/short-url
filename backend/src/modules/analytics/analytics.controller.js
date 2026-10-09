@@ -1,15 +1,15 @@
 const { getBaseUrl, parsePositiveInt } = require('../../common/http');
+const { SHORT_CODE_PATTERN } = require('../../common/shortCode');
 const urlsService = require('../urls/urls.service');
 const analyticsService = require('./analytics.service');
 
-const CODE_PATTERN = /^[A-Za-z0-9]{1,32}$/;
 const DEFAULT_DAYS = 14;
 const MAX_DAYS = 90;
 
 async function getUrlStats(req, res) {
   const { code } = req.params;
 
-  if (!CODE_PATTERN.test(code)) {
+  if (!SHORT_CODE_PATTERN.test(code)) {
     return res.status(404).json({ error: 'ไม่พบลิงก์นี้' });
   }
 
@@ -30,10 +30,10 @@ async function getUrlStats(req, res) {
     return res.json({
       url: {
         shortCode: url.shortCode,
-
         shortUrl: `${getBaseUrl(req)}/${url.shortCode}`,
         originalUrl: url.originalUrl,
         createdAt: url.createdAt,
+        expiresAt: url.expiresAt,
       },
       ...stats,
     });

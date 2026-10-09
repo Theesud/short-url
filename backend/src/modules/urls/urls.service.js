@@ -3,7 +3,30 @@ const { generateShortCode } = require('../../common/shortCode');
 
 const MAX_ATTEMPTS = 5;
 
-async function createShortUrl(originalUrl, userId = null) {
+class AliasTakenError extends Error {
+  constructor() {
+    super('Alias already taken');
+    this.name = 'AliasTakenError';
+  }
+}
+
+async function createShortUrl(
+  originalUrl,
+  userId = null,
+  { alias = null, expiresAt = null } = {}
+) {
+  if (alias) {
+    try {
+      return await prisma.url.create({
+        data: { shortCode: alias, originalUrl, userId, expiresAt },
+      });
+    } catch (error) {
+      // P2002 = ค่า unique ซ้ำ: มีคนใช้ชื่อนี้แล้ว
+      if (error.code === 'P2002') throw new AliasTakenError();
+      throw error;
+    }
+  }
+
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
       return await prisma.url.create({
@@ -11,10 +34,11 @@ async function createShortUrl(originalUrl, userId = null) {
           shortCode: generateShortCode(),
           originalUrl,
           userId,
+          expiresAt,
         },
       });
     } catch (error) {
-      // P2002 = ค่า unique ซ้ำ (shortCode ชนกัน) ให้สุ่มใหม่
+      // รหัสสุ่มชนกับของเดิม ให้สุ่มใหม่
       if (error.code === 'P2002') continue;
       throw error;
     }
@@ -43,4 +67,15 @@ async function listUrls({ page, limit, userId }) {
   return { items, total };
 }
 
-module.exports = { createShortUrl, findByShortCode, listUrls };
+async function deleteOwnedUrl(userId, shortCode) {
+  const result = await prisma.url.deleteMany({ where: { shortCode, userId } });
+  return result.count > 0;
+}
+
+module.exports = {
+  AliasTakenError,
+  createShortUrl,
+  findByShortCode,
+  listUrls,
+  deleteOwnedUrl,
+};

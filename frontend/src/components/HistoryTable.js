@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { fetchUrls } from '@/lib/api';
+import { deleteUrl, fetchUrls } from '@/lib/api';
 import './history-table.css';
 
 const PAGE_SIZE = 10;
@@ -30,7 +30,6 @@ function CopyButton({ text }) {
   return (
     <button
       type="button"
-
       className="btn btn-secondary btn-small"
       onClick={handleCopy}
     >
@@ -45,6 +44,9 @@ export default function HistoryTable() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [confirmingCode, setConfirmingCode] = useState(null);
+  const [deletingCode, setDeletingCode] = useState(null);
+  const [actionError, setActionError] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -63,7 +65,6 @@ export default function HistoryTable() {
       });
 
     return () => {
-
       cancelled = true;
     };
   }, [page, reloadKey]);
@@ -72,6 +73,7 @@ export default function HistoryTable() {
     if (nextPage === page) return;
     setLoading(true);
     setError('');
+    setConfirmingCode(null);
     setPage(nextPage);
   }
 
@@ -79,6 +81,26 @@ export default function HistoryTable() {
     setLoading(true);
     setError('');
     setReloadKey((key) => key + 1);
+  }
+
+  async function handleDelete(item) {
+    setDeletingCode(item.shortCode);
+    setActionError('');
+
+    try {
+      await deleteUrl(item.shortCode);
+      setConfirmingCode(null);
+
+      if (data.items.length === 1 && page > 1) {
+        goToPage(page - 1);
+      } else {
+        reload();
+      }
+    } catch (err) {
+      setActionError(err.message);
+    } finally {
+      setDeletingCode(null);
+    }
   }
 
   if (error) {
@@ -96,16 +118,17 @@ export default function HistoryTable() {
 
   if (!data) {
     return <div className="state-box">กำลังโหลดข้อมูล...</div>;
-
   }
 
   if (data.total === 0) {
     return (
       <div className="state-box">
         <p>ยังไม่มีลิงก์ที่สร้างไว้</p>
-        <Link href="/" className="btn btn-primary">
-          สร้างลิงก์แรก
-        </Link>
+        <div className="state-actions">
+          <Link href="/" className="btn btn-primary">
+            สร้างลิงก์แรก
+          </Link>
+        </div>
       </div>
     );
   }
@@ -124,14 +147,20 @@ export default function HistoryTable() {
         </button>
       </div>
 
+      {actionError && (
+        <p className="error-box" role="alert">
+          {actionError}
+        </p>
+      )}
+
       <div className={`table-wrap${loading ? ' is-loading' : ''}`}>
         <table className="data-table">
           <thead>
             <tr>
               <th>Short URL</th>
-
               <th>URL ต้นฉบับ</th>
               <th>สร้างเมื่อ</th>
+              <th>หมดอายุ</th>
               <th className="cell-num">จำนวนคลิก</th>
               <th />
             </tr>
@@ -154,19 +183,66 @@ export default function HistoryTable() {
                   </span>
                 </td>
                 <td className="cell-date">{formatDate(item.createdAt)}</td>
+                <td className="cell-date">
+                  {item.expiresAt ? (
+                    <>
+                      {formatDate(item.expiresAt)}
+                      {item.expired && (
+                        <span className="badge badge-expired">หมดอายุแล้ว</span>
+                      )}
+                    </>
+                  ) : (
+                    'ไม่หมดอายุ'
+                  )}
+                </td>
                 <td className="cell-num">
                   <span className="count-badge">{item.clickCount}</span>
                 </td>
                 <td>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <CopyButton text={item.shortUrl} />
-                    <Link
-                      href={`/stats/${item.shortCode}`}
-
-                      className="btn btn-secondary btn-small"
-                    >
-                      สถิติ
-                    </Link>
+                  <div className="row-actions">
+                    {confirmingCode === item.shortCode ? (
+                      <>
+                        <span className="confirm-text">ลบลิงก์และสถิติ?</span>
+                        <button
+                          type="button"
+                          className="btn btn-danger btn-small"
+                          onClick={() => handleDelete(item)}
+                          disabled={deletingCode === item.shortCode}
+                        >
+                          {deletingCode === item.shortCode
+                            ? 'กำลังลบ...'
+                            : 'ยืนยันลบ'}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-small"
+                          onClick={() => setConfirmingCode(null)}
+                          disabled={deletingCode === item.shortCode}
+                        >
+                          ยกเลิก
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <CopyButton text={item.shortUrl} />
+                        <Link
+                          href={`/stats/${item.shortCode}`}
+                          className="btn btn-secondary btn-small"
+                        >
+                          สถิติ
+                        </Link>
+                        <button
+                          type="button"
+                          className="btn btn-secondary btn-small"
+                          onClick={() => {
+                            setActionError('');
+                            setConfirmingCode(item.shortCode);
+                          }}
+                        >
+                          ลบ
+                        </button>
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -195,7 +271,6 @@ export default function HistoryTable() {
         >
           ถัดไป
         </button>
-
       </div>
     </div>
   );

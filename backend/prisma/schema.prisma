@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  
 }
 
 model User {
@@ -18,18 +19,18 @@ model User {
 }
 
 model Url {
-  id          Int      @id @default(autoincrement())
-  shortCode   String   @unique @map("short_code") @db.VarChar(32)
-  originalUrl String   @map("original_url")
-  createdAt   DateTime @default(now()) @map("created_at")
-  userId      Int?     @map("user_id")
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  id          Int       @id @default(autoincrement())
+  shortCode   String    @unique @map("short_code") @db.VarChar(32)
+  originalUrl String    @map("original_url")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  expiresAt   DateTime? @map("expires_at")
+  userId      Int?      @map("user_id")
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   clicks      Click[]
 
   @@index([userId, createdAt])
   @@map("urls")
 }
-
 
 model Click {
   id        Int      @id @default(autoincrement())
