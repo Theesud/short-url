@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Inter, Noto_Sans_Thai } from 'next/font/google';
+import NavLinks from '@/components/NavLinks';
 import './globals.css';
 
 const inter = Inter({
@@ -29,8 +30,8 @@ export default function RootLayout({ children }) {
               <span className="brand-mark" aria-hidden="true">
                 <svg
                   width="18"
-                  height="18"
 
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -44,6 +45,7 @@ export default function RootLayout({ children }) {
               </span>
               Short URL
             </Link>
+            <NavLinks />
           </div>
         </header>
 

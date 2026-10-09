@@ -2,15 +2,11 @@ const API_URL = (
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 ).replace(/\/+$/, '');
 
-export async function createShortUrl(originalUrl) {
+async function request(path, options) {
   let response;
 
   try {
-    response = await fetch(`${API_URL}/api/urls`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ originalUrl }),
-    });
+    response = await fetch(`${API_URL}${path}`, options);
   } catch (error) {
     throw new Error(
       'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ กรุณาตรวจสอบว่า backend กำลังทำงานอยู่'
@@ -30,6 +26,21 @@ export async function createShortUrl(originalUrl) {
     );
   }
 
-
   return data;
+}
+
+export function createShortUrl(originalUrl) {
+  return request('/api/urls', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ originalUrl }),
+  });
+}
+
+export function fetchUrls({ page = 1, limit = 10 } = {}) {
+  const query = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+  return request(`/api/urls?${query}`, { cache: 'no-store' });
 }

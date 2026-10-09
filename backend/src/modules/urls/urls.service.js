@@ -25,4 +25,20 @@ async function findByShortCode(shortCode) {
   return prisma.url.findUnique({ where: { shortCode } });
 }
 
-module.exports = { createShortUrl, findByShortCode };
+async function listUrls({ page, limit }) {
+  const skip = (page - 1) * limit;
+
+  const [items, total] = await Promise.all([
+    prisma.url.findMany({
+
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.url.count(),
+  ]);
+
+  return { items, total };
+}
+
+module.exports = { createShortUrl, findByShortCode, listUrls };
