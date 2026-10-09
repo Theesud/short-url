@@ -1,3 +1,17 @@
+.result-note {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: var(--navy);
+  background: var(--navy-soft);
+  border-radius: 10px;
+}
+
+.result-note a {
+  font-weight: 600;
+  color: var(--navy-accent);
+}
+
 .qr-block {
   display: flex;
   align-items: center;
@@ -30,7 +44,6 @@
 .qr-title {
   margin: 0 0 4px;
   font-weight: 700;
-
   color: var(--navy);
 }
 

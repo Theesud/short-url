@@ -1,3 +1,4 @@
+import RequireAuth from '@/components/RequireAuth';
 import StatsView from '@/components/StatsView';
 
 export const metadata = {
@@ -9,7 +10,9 @@ export default async function StatsPage({ params }) {
 
   return (
     <section className="stats-page">
-      <StatsView code={code} />
+      <RequireAuth message="กรุณาเข้าสู่ระบบเพื่อดูสถิติของลิงก์นี้">
+        <StatsView code={code} />
+      </RequireAuth>
     </section>
   );
 }

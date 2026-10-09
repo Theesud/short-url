@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import QRCode from 'qrcode';
 import './result-card.css';
 
@@ -30,7 +31,6 @@ export default function ResultCard({ result }) {
       cancelled = true;
     };
   }, [result.shortUrl]);
-
 
   async function handleCopy() {
     try {
@@ -63,7 +63,6 @@ export default function ResultCard({ result }) {
         </button>
         <a
           className="btn btn-secondary"
-
           href={result.shortUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -75,6 +74,19 @@ export default function ResultCard({ result }) {
       <p className="result-original" title={result.originalUrl}>
         ปลายทาง: {result.originalUrl}
       </p>
+
+      {result.owned ? (
+        <p className="result-note">
+          บันทึกลิงก์นี้ในบัญชีของคุณแล้ว{' '}
+          <Link href={`/stats/${result.shortCode}`}>ดูสถิติของลิงก์นี้ →</Link>
+        </p>
+      ) : (
+        <p className="result-note">
+          ลิงก์นี้ใช้งานได้ แต่สร้างโดยไม่ได้เข้าสู่ระบบ จึงไม่อยู่ในประวัติและดูสถิติไม่ได้{' '}
+          <Link href="/login">เข้าสู่ระบบ</Link> หรือ{' '}
+          <Link href="/register">สมัครสมาชิก</Link> เพื่อเก็บลิงก์ครั้งต่อไป
+        </p>
+      )}
 
       <div className="qr-block">
         {qrDataUrl ? (
@@ -96,7 +108,6 @@ export default function ResultCard({ result }) {
           <p className="qr-title">QR Code</p>
           <p className="qr-desc">
             สแกนด้วยมือถือเพื่อเปิดลิงก์นี้ (นับเป็นการคลิกด้วย)
-
           </p>
           {qrDataUrl && (
             <a
