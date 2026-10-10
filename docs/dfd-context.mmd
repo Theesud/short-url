@@ -1,0 +1,17 @@
+---
+title: "DFD Level 0 — Context Diagram ระบบ Short URL"
+---
+flowchart LR
+    U["ผู้ใช้งาน<br/>(ผู้เยี่ยมชม / สมาชิก)"]
+    V["ผู้เข้าชมลิงก์<br/>(กดลิงก์ / สแกน QR)"]
+    S(("0<br/>ระบบ Short URL"))
+
+    U -->|"ข้อมูลสมัคร/เข้าสู่ระบบ, URL ต้นฉบับ,<br/>ตัวเลือกลิงก์, คำขอดูสถิติ/ลบลิงก์"| S
+    S -->|"Token, Short URL, QR Code,<br/>ประวัติและสถิติการคลิก"| U
+    V -->|"คำขอเปิด Short URL"| S
+    S -->|"Redirect ไป URL ต้นฉบับ<br/>หรือหน้าลิงก์ใช้ไม่ได้"| V
+
+    classDef entity fill:#ffffff,stroke:#14284b,stroke-width:2px,color:#14284b
+    classDef process fill:#eaf0fb,stroke:#14284b,stroke-width:2px,color:#14284b
+    class U,V entity
+    class S process
