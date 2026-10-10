@@ -1,0 +1,42 @@
+---
+title: "Scenario: Architecture Diagram - Micro Service"
+---
+flowchart TB
+    B["เบราว์เซอร์ / มือถือ"]
+    FE["Frontend: Next.js<br/>(เสิร์ฟหน้าเว็บ)"]
+    GW["API Gateway<br/>ตรวจ JWT · Rate Limit · Routing"]
+
+    subgraph SVC["Services (แยก deploy และ scale ได้)"]
+        AUTH["Auth Service<br/>สมัคร · เข้าสู่ระบบ · JWT"]
+        URLS["URL Service<br/>สร้าง · ลบ · รายการลิงก์"]
+        RED["Redirect Service<br/>อ่านเร็ว · ใช้ Cache"]
+        ANA["Analytics Service<br/>รวมและให้บริการสถิติ"]
+    end
+
+    CACHE[("Redis Cache<br/>code → URL, วันหมดอายุ")]
+    MQ{{"Message Queue<br/>Redis Streams / BullMQ"}}
+    DB1[("Users DB")]
+    DB2[("URLs DB")]
+    DB3[("Analytics DB<br/>คลิก + สำเนา code/เจ้าของ")]
+
+    B -->|"โหลดหน้าเว็บ"| FE
+    B -->|"REST API + JWT"| GW
+    GW --> AUTH
+    GW --> URLS
+    GW --> ANA
+    B -->|"เปิด Short URL<br/>(กดลิงก์ / สแกน QR)"| RED
+
+    AUTH --> DB1
+    URLS --> DB2
+    URLS -->|"เขียน/ล้าง cache"| CACHE
+    RED -->|"อ่านลิงก์"| CACHE
+    RED -.->|"cache miss:<br/>อ่านอย่างเดียว"| DB2
+    RED -->|"click event"| MQ
+    URLS -->|"url.created / url.deleted"| MQ
+    MQ -->|"ประมวลผลแบบ async"| ANA
+    ANA --> DB3
+
+    classDef box fill:#eaf0fb,stroke:#14284b,stroke-width:1.5px,color:#14284b
+    classDef infra fill:#f3f6fc,stroke:#2c4f94,stroke-width:1.5px,color:#14284b
+    class B,FE,GW,AUTH,URLS,RED,ANA box
+    class CACHE,MQ,DB1,DB2,DB3 infra
