@@ -11,8 +11,32 @@ const clickListener = require('./modules/analytics/clickListener');
 
 const app = express();
 
+function buildCorsOptions() {
+  const allowedOrigins = (process.env.FRONTEND_URL || '')
+    .split(',')
+    .map((value) => value.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
+
+  // ไม่ได้ตั้ง FRONTEND_URL: อนุญาตทุกที่มา (สะดวกตอนพัฒนา)
+  if (allowedOrigins.length === 0) {
+    return {};
+  }
+
+  return {
+    origin(origin, callback) {
+      // คำขอที่ไม่มี Origin (curl, สคริปต์ทดสอบ) ผ่านได้
+      // ส่วนเบราว์เซอร์จากเว็บอื่นจะไม่ได้รับอนุญาต
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
+  };
+}
+
+app.disable('x-powered-by');
 app.set('trust proxy', 1);
-app.use(cors());
+app.use(cors(buildCorsOptions()));
 app.use(express.json());
 
 clickListener.register();
@@ -30,7 +54,6 @@ app.get('/health', async (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/urls', urlsRoutes);
 app.use('/api/urls', analyticsRoutes);
-
 
 // ต้องอยู่หลังสุด เพราะ /:code จะดักทุกเส้นทางที่ยังไม่ถูกจับ
 app.use('/', redirectRoutes);
