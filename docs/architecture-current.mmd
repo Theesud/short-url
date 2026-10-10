@@ -1,0 +1,42 @@
+---
+title: "สถาปัตยกรรมปัจจุบัน — Modular Monolith (Next.js + Express + PostgreSQL)"
+---
+flowchart TB
+    subgraph CL["ฝั่งผู้ใช้"]
+        B["เบราว์เซอร์ / มือถือ<br/>(รัน JavaScript ของหน้าเว็บ<br/>และสร้าง QR Code ที่นี่)"]
+    end
+
+    subgraph FE["Frontend: Next.js"]
+        N["เสิร์ฟหน้าเว็บ<br/>สร้างลิงก์ · ประวัติ · สถิติ<br/>เข้าสู่ระบบ · ลิงก์ใช้ไม่ได้"]
+    end
+
+    subgraph BE["Backend: Express.js (Modular Monolith)"]
+        AUTH["auth<br/>สมัคร · เข้าสู่ระบบ · JWT"]
+        URLS["urls<br/>สร้าง · รายการ · ลบ"]
+        RED["redirect<br/>GET /:code → 302"]
+        ANA["analytics<br/>สถิติ · ตัวฟังเหตุการณ์คลิก"]
+        BUS{{"events/<br/>Event Bus"}}
+    end
+
+    DB[("PostgreSQL<br/>users · urls · url_clicks")]
+
+    B -->|"โหลดหน้าเว็บ"| N
+    B -->|"REST API + JWT<br/>/api/auth/*"| AUTH
+    B -->|"REST API + JWT<br/>/api/urls"| URLS
+    B -->|"REST API + JWT<br/>/api/urls/:code/stats"| ANA
+    B -->|"เปิด Short URL<br/>(กดลิงก์ / สแกน QR)"| RED
+
+    RED -->|"ค้นหาลิงก์"| URLS
+    URLS -->|"นับคลิกต่อลิงก์"| ANA
+    ANA -->|"ตรวจเจ้าของลิงก์"| URLS
+    RED -.->|"เหตุการณ์ url.visited"| BUS
+    BUS -.->|"บันทึกคลิก"| ANA
+
+    AUTH --> DB
+    URLS --> DB
+    ANA --> DB
+
+    classDef box fill:#eaf0fb,stroke:#14284b,stroke-width:1.5px,color:#14284b
+    classDef db fill:#f3f6fc,stroke:#2c4f94,stroke-width:1.5px,color:#14284b
+    class B,N,AUTH,URLS,RED,ANA,BUS box
+    class DB db
