@@ -1,0 +1,35 @@
+Table users {
+  id integer [pk, increment]
+  email text [not null, unique]
+  password_hash text [not null, note: 'bcrypt hash']
+  created_at timestamp [not null, default: `now()`]
+}
+
+Table urls {
+  id integer [pk, increment]
+  short_code varchar(32) [not null, unique]
+  original_url text [not null]
+  created_at timestamp [not null, default: `now()`]
+  expires_at timestamp [note: 'ว่าง = ไม่หมดอายุ']
+  user_id integer [note: 'ว่าง = ลิงก์ที่สร้างโดยไม่ล็อกอิน']
+
+  indexes {
+    (user_id, created_at)
+  }
+}
+
+Table url_clicks {
+  id integer [pk, increment]
+  url_id integer [not null]
+  clicked_at timestamp [not null, default: `now()`]
+  ip_address text
+  user_agent text
+  referer text
+
+  indexes {
+    (url_id, clicked_at)
+  }
+}
+
+Ref: urls.user_id > users.id [delete: set null]
+Ref: url_clicks.url_id > urls.id [delete: cascade]
