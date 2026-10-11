@@ -68,7 +68,7 @@ export default function UrlForm() {
   return (
     <div>
       <div className="card">
-        <form className="url-form" onSubmit={handleSubmit} noValidate>
+        <form className="shorten-form" onSubmit={handleSubmit} noValidate>
           <label htmlFor="original-url" className="sr-only">
             URL ที่ต้องการย่อ
           </label>
@@ -82,66 +82,74 @@ export default function UrlForm() {
             value={value}
             onChange={(event) => setValue(event.target.value)}
           />
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? (
-              <>
-                <span className="spinner" aria-hidden="true" />
-                กำลังย่อลิงก์...
-              </>
-            ) : (
-              'ย่อลิงก์'
-            )}
+
+          <button
+            type="button"
+            className="options-toggle"
+            onClick={() => setShowOptions((open) => !open)}
+            aria-expanded={showOptions}
+            aria-controls="link-options"
+          >
+            {showOptions ? 'ซ่อนตัวเลือกเพิ่มเติม ▴' : 'ตัวเลือกเพิ่มเติม ▾'}
           </button>
-        </form>
 
-        <button
-          type="button"
-          className="options-toggle"
-          onClick={() => setShowOptions((open) => !open)}
-          aria-expanded={showOptions}
-        >
-          {showOptions ? 'ซ่อนตัวเลือกเพิ่มเติม ▴' : 'ตัวเลือกเพิ่มเติม ▾'}
-        </button>
-
-        {showOptions && (
-          <div className="options-panel">
-            <div className="field">
-              <label htmlFor="alias">ตั้งชื่อลิงก์เอง (ไม่บังคับ)</label>
-              <div className="alias-wrap">
-                <span className="alias-prefix">{SHORT_HOST}/</span>
-                <input
-                  id="alias"
-                  className="alias-input"
-                  type="text"
-                  autoComplete="off"
-                  maxLength={32}
-                  placeholder="promo-2026"
-                  value={alias}
-                  onChange={(event) => setAlias(event.target.value)}
-                />
+          {showOptions && (
+            <div id="link-options" className="options-panel">
+              <div className="field">
+                <label htmlFor="alias">ตั้งชื่อลิงก์เอง (ไม่บังคับ)</label>
+                <div className="alias-wrap">
+                  <span className="alias-prefix">{SHORT_HOST}/</span>
+                  <input
+                    id="alias"
+                    className="alias-input"
+                    type="text"
+                    autoComplete="off"
+                    maxLength={32}
+                    placeholder="promo-2026"
+                    value={alias}
+                    onChange={(event) => setAlias(event.target.value)}
+                  />
+                </div>
+                <p className="field-hint">
+                  3–32 ตัวอักษร ใช้ a-z, A-Z, 0-9, - และ _
+                </p>
               </div>
-              <p className="field-hint">
-                3–32 ตัวอักษร ใช้ a-z, A-Z, 0-9, - และ _
-              </p>
-            </div>
 
-            <div className="field">
-              <label htmlFor="expiry">วันหมดอายุ</label>
-              <select
-                id="expiry"
-                className="text-input"
-                value={expiresInDays}
-                onChange={(event) => setExpiresInDays(event.target.value)}
-              >
-                {EXPIRY_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <div className="field">
+                <label htmlFor="expiry">วันหมดอายุ</label>
+                <select
+                  id="expiry"
+                  className="text-input"
+                  value={expiresInDays}
+                  onChange={(event) => setExpiresInDays(event.target.value)}
+                >
+                  {EXPIRY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
+          )}
+
+          <div className="form-actions">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="spinner" aria-hidden="true" />
+                  กำลังย่อลิงก์...
+                </>
+              ) : (
+                'ย่อลิงก์'
+              )}
+            </button>
           </div>
-        )}
+        </form>
 
         {error && (
           <p className="error-box" role="alert">

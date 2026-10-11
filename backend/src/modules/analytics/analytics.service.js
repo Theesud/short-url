@@ -37,15 +37,6 @@ function buildDayList(days, timeZone) {
   return list;
 }
 
-function extractHost(referer) {
-  if (!referer) return null;
-  try {
-    return new URL(referer).host;
-  } catch (error) {
-    return referer;
-  }
-}
-
 async function getClickStats(urlId, options = {}) {
   const days = options.days || 14;
   const timeZone = options.timeZone || DEFAULT_TIMEZONE;
@@ -70,7 +61,7 @@ async function getClickStats(urlId, options = {}) {
       where: { urlId },
       orderBy: { clickedAt: 'desc' },
       take: recentLimit,
-      select: { id: true, clickedAt: true, userAgent: true, referer: true },
+      select: { id: true, clickedAt: true, userAgent: true, source: true },
     }),
   ]);
 
@@ -95,12 +86,16 @@ async function getClickStats(urlId, options = {}) {
     days,
     daily,
     summary: { today, last7Days },
-    recent: recentRows.map((row) => ({
-      id: row.id,
-      clickedAt: row.clickedAt,
-      ...parseUserAgent(row.userAgent),
-      referer: extractHost(row.referer),
-    })),
+    recent: recentRows.map((row) => {
+      const { os, device } = parseUserAgent(row.userAgent);
+      return {
+        id: row.id,
+        clickedAt: row.clickedAt,
+        os,
+        device,
+        source: row.source,
+      };
+    }),
   };
 }
 

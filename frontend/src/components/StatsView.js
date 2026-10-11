@@ -8,6 +8,15 @@ import './stats.css';
 
 const RANGES = [7, 14, 30];
 
+const SOURCE_LABELS = {
+  qr: 'สแกน QR',
+  link: 'ลิงก์',
+};
+
+function sourceLabel(source) {
+  return SOURCE_LABELS[source] || SOURCE_LABELS.link;
+}
+
 function formatDateTime(isoString) {
   return new Intl.DateTimeFormat('th-TH', {
     dateStyle: 'medium',
@@ -30,7 +39,6 @@ export default function StatsView({ code }) {
         if (cancelled) return;
         setStats(result);
         setError('');
-
       })
       .catch((err) => {
         if (!cancelled) setError(err.message);
@@ -63,7 +71,6 @@ export default function StatsView({ code }) {
         <Link href="/history" className="back-link">
           ← กลับไปหน้าประวัติ
         </Link>
-
         <p className="error-box" role="alert">
           {error}
         </p>
@@ -96,7 +103,6 @@ export default function StatsView({ code }) {
           </a>
         </h1>
         <p className="stats-original">ปลายทาง: {stats.url.originalUrl}</p>
-
         <p className="stats-meta">
           สร้างเมื่อ {formatDateTime(stats.url.createdAt)}
         </p>
@@ -129,7 +135,6 @@ export default function StatsView({ code }) {
                 key={range}
                 type="button"
                 className={`range-btn${range === days ? ' active' : ''}`}
-
                 onClick={() => changeDays(range)}
                 disabled={loading}
                 aria-pressed={range === days}
@@ -162,10 +167,8 @@ export default function StatsView({ code }) {
             <table className="recent-table">
               <thead>
                 <tr>
-
                   <th>เวลา</th>
                   <th>อุปกรณ์</th>
-                  <th>เบราว์เซอร์</th>
                   <th>ระบบปฏิบัติการ</th>
                   <th>ที่มา</th>
                 </tr>
@@ -175,9 +178,8 @@ export default function StatsView({ code }) {
                   <tr key={click.id}>
                     <td>{formatDateTime(click.clickedAt)}</td>
                     <td>{click.device}</td>
-                    <td>{click.browser}</td>
                     <td>{click.os}</td>
-                    <td>{click.referer || 'ตรง / สแกน QR'}</td>
+                    <td>{sourceLabel(click.source)}</td>
                   </tr>
                 ))}
               </tbody>

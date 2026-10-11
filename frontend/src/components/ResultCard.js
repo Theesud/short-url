@@ -21,7 +21,10 @@ export default function ResultCard({ result }) {
   useEffect(() => {
     let cancelled = false;
 
-    QRCode.toDataURL(result.shortUrl, {
+    // QR เก็บลิงก์ที่ติดป้าย ?src=qr เพื่อให้สถิติแยก "สแกน QR" ออกจาก "ลิงก์"
+    const qrTarget = `${result.shortUrl}?src=qr`;
+
+    QRCode.toDataURL(qrTarget, {
       width: 480,
       margin: 2,
       errorCorrectionLevel: 'M',
@@ -65,7 +68,11 @@ export default function ResultCard({ result }) {
           aria-label="Short URL"
           onFocus={(event) => event.target.select()}
         />
-        <button type="button" className="btn btn-primary" onClick={handleCopy}>
+        <button
+          type="button"
+          className="btn btn-primary btn-copy"
+          onClick={handleCopy}
+        >
           {copied ? 'คัดลอกแล้ว ✓' : 'คัดลอก'}
         </button>
         <a
@@ -120,7 +127,7 @@ export default function ResultCard({ result }) {
         <div className="qr-text">
           <p className="qr-title">QR Code</p>
           <p className="qr-desc">
-            สแกนด้วยมือถือเพื่อเปิดลิงก์นี้ (นับเป็นการคลิกด้วย)
+            สแกนด้วยมือถือเพื่อเปิดลิงก์นี้ (สถิติจะบันทึกเป็น &quot;สแกน QR&quot;)
           </p>
           {qrDataUrl && (
             <a

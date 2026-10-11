@@ -10,6 +10,7 @@ function register() {
           ipAddress: event.ipAddress,
           userAgent: event.userAgent,
           referer: event.referer,
+          source: event.source === 'qr' ? 'qr' : 'link',
         },
       });
     } catch (error) {

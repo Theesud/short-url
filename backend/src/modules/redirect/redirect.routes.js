@@ -5,6 +5,13 @@ const { bus, EVENTS } = require('../../events/eventBus');
 
 const router = express.Router();
 
+// ไม่ให้เบราว์เซอร์/proxy จำผลของลิงก์สั้น เพื่อให้ทุกครั้งผ่านเซิร์ฟเวอร์
+// (ทั้งการตรวจวันหมดอายุและการนับคลิก)
+router.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+});
+
 function getFrontendUrl() {
   return (process.env.FRONTEND_URL || '').replace(/\/+$/, '');
 }
@@ -37,11 +44,15 @@ router.get('/:code', async (req, res) => {
       return sendUnavailable(req, res, 410, 'expired', 'ลิงก์นี้หมดอายุแล้ว');
     }
 
+    // QR Code ของระบบเก็บลิงก์ที่ต่อท้ายด้วย ?src=qr เพื่อแยกจากการกดลิงก์ปกติ
+    const source = req.query.src === 'qr' ? 'qr' : 'link';
+
     bus.emit(EVENTS.URL_VISITED, {
       urlId: url.id,
       ipAddress: req.ip || null,
       userAgent: req.get('user-agent') || null,
       referer: req.get('referer') || null,
+      source,
     });
 
     return res.redirect(302, url.originalUrl);
