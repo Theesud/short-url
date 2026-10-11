@@ -19,7 +19,7 @@
 ### ขั้นตอนที่ 1: โคลนโปรเจกต์
 
 ```bash
-git clone <URL ของ repository นี้>
+git clone https://github.com/Theesud/short-url
 cd short-url
 ```
 

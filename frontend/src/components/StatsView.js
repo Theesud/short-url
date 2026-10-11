@@ -165,7 +165,6 @@ export default function StatsView({ code }) {
 
                   <th>เวลา</th>
                   <th>อุปกรณ์</th>
-                  <th>เบราว์เซอร์</th>
                   <th>ระบบปฏิบัติการ</th>
                   <th>ที่มา</th>
                 </tr>
@@ -175,7 +174,6 @@ export default function StatsView({ code }) {
                   <tr key={click.id}>
                     <td>{formatDateTime(click.clickedAt)}</td>
                     <td>{click.device}</td>
-                    <td>{click.browser}</td>
                     <td>{click.os}</td>
                     <td>{click.referer || 'ตรง / สแกน QR'}</td>
                   </tr>
