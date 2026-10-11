@@ -1,17 +1,5 @@
-.shorten-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-/* ช่องวางลิงก์เต็มความกว้างของกรอบ (ทับค่า flex:1 เดิมที่ใช้ตอนอยู่แถวเดียวกับปุ่ม) */
-.shorten-form .url-input {
-  flex: none;
-  width: 100%;
-}
-
 .options-toggle {
-  align-self: flex-start;
+  margin-top: 14px;
   padding: 0;
   font: inherit;
   font-size: 0.93rem;
@@ -26,16 +14,11 @@
   text-decoration: underline;
 }
 
-.options-toggle:focus-visible {
-  outline: none;
-  border-radius: 6px;
-  box-shadow: 0 0 0 3px var(--navy-soft);
-}
-
 .options-panel {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 14px;
+  margin-top: 12px;
   padding: 16px;
   background: var(--navy-tint);
   border: 1px solid var(--border);
@@ -83,22 +66,8 @@
   color: var(--muted);
 }
 
-/* ปุ่มย่อลิงก์อยู่ขวาล่างของฟอร์มเสมอ */
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.form-actions .btn {
-  min-width: 148px;
-}
-
 @media (max-width: 560px) {
   .options-panel {
     grid-template-columns: 1fr;
-  }
-
-  .form-actions .btn {
-    width: 100%;
   }
 }

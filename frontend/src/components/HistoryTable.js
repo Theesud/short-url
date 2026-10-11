@@ -14,11 +14,6 @@ function formatDate(isoString) {
   }).format(new Date(isoString));
 }
 
-// แสดงลิงก์โดยตัด http:// หรือ https:// ออกเพื่อประหยัดพื้นที่ (ลิงก์จริงยังครบ)
-function displayUrl(url) {
-  return url.replace(/^https?:\/\//i, '');
-}
-
 function CopyButton({ text }) {
   const [copied, setCopied] = useState(false);
 
@@ -35,7 +30,7 @@ function CopyButton({ text }) {
   return (
     <button
       type="button"
-      className="btn btn-primary btn-small btn-copy"
+      className="btn btn-secondary btn-small"
       onClick={handleCopy}
     >
       {copied ? 'คัดลอกแล้ว' : 'คัดลอก'}
@@ -160,24 +155,14 @@ export default function HistoryTable() {
 
       <div className={`table-wrap${loading ? ' is-loading' : ''}`}>
         <table className="data-table">
-          <colgroup>
-            <col className="col-short" />
-            <col className="col-original" />
-            <col className="col-created" />
-            <col className="col-expires" />
-            <col className="col-clicks" />
-            <col className="col-actions" />
-          </colgroup>
           <thead>
             <tr>
               <th>Short URL</th>
               <th>URL ต้นฉบับ</th>
               <th>สร้างเมื่อ</th>
               <th>หมดอายุ</th>
-              <th>จำนวนคลิก</th>
-              <th>
-                <span className="sr-only">การดำเนินการ</span>
-              </th>
+              <th className="cell-num">จำนวนคลิก</th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -187,52 +172,39 @@ export default function HistoryTable() {
 
               return (
                 <tr key={item.id}>
-                  <td className="cell-short" data-label="Short URL">
-                    <div className="cell-body">
-                      <a
-                        href={item.shortUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={item.shortUrl}
-                      >
-                        {displayUrl(item.shortUrl)}
-                      </a>
-                    </div>
+                  <td className="cell-short">
+                    <a
+                      href={item.shortUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {item.shortUrl}
+                    </a>
                   </td>
-                  <td data-label="URL ต้นฉบับ">
-                    <div className="cell-body">
-                      <span className="cell-url" title={item.originalUrl}>
-                        {displayUrl(item.originalUrl)}
-                      </span>
-                    </div>
+                  <td>
+                    <span className="cell-url" title={item.originalUrl}>
+                      {item.originalUrl}
+                    </span>
                   </td>
-                  <td className="cell-date" data-label="สร้างเมื่อ">
-                    <div className="cell-body">
-                      {formatDate(item.createdAt)}
-                    </div>
+                  <td className="cell-date">{formatDate(item.createdAt)}</td>
+                  <td className="cell-date">
+                    {item.expiresAt ? (
+                      <>
+                        {formatDate(item.expiresAt)}
+                        {item.expired && (
+                          <span className="badge badge-expired">
+                            หมดอายุแล้ว
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      'ไม่หมดอายุ'
+                    )}
                   </td>
-                  <td className="cell-date" data-label="หมดอายุ">
-                    <div className="cell-body">
-                      {item.expiresAt ? (
-                        <>
-                          {formatDate(item.expiresAt)}
-                          {item.expired && (
-                            <span className="badge badge-expired">
-                              หมดอายุแล้ว
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        'ไม่หมดอายุ'
-                      )}
-                    </div>
+                  <td className="cell-num">
+                    <span className="count-badge">{item.clickCount}</span>
                   </td>
-                  <td className="cell-num" data-label="จำนวนคลิก">
-                    <div className="cell-body">
-                      <span className="count-badge">{item.clickCount}</span>
-                    </div>
-                  </td>
-                  <td className="cell-actions">
+                  <td>
                     <div
                       className={`row-actions${confirming ? ' is-confirming' : ''}`}
                     >
@@ -269,7 +241,7 @@ export default function HistoryTable() {
                           </Link>
                           <button
                             type="button"
-                            className="btn btn-danger btn-small"
+                            className="btn btn-secondary btn-small"
                             onClick={() => {
                               setActionError('');
                               setConfirmingCode(item.shortCode);

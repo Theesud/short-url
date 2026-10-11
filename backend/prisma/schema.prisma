@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  
 }
 
 model User {
@@ -38,7 +39,6 @@ model Click {
   ipAddress String?  @map("ip_address")
   userAgent String?  @map("user_agent")
   referer   String?
-  source    String   @default("link") @db.VarChar(16)
   url       Url      @relation(fields: [urlId], references: [id], onDelete: Cascade)
 
   @@index([urlId, clickedAt])

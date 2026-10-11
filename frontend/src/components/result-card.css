@@ -12,11 +12,6 @@
   color: var(--navy-accent);
 }
 
-/* กันปุ่มคัดลอกเปลี่ยนความกว้างตอนข้อความเปลี่ยนเป็น "คัดลอกแล้ว ✓" */
-.result-row .btn-copy {
-  min-width: 132px;
-}
-
 .qr-block {
   display: flex;
   align-items: center;
