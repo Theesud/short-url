@@ -1,4 +1,4 @@
-import UrlForm from '@/components/UrlForm';
+import HomeForm from '@/components/HomeForm';
 
 export default function HomePage() {
   return (
@@ -9,7 +9,7 @@ export default function HomePage() {
       <p className="hero-sub">
         วางลิงก์ยาว ๆ ของคุณ แล้วรับลิงก์สั้นพร้อมใช้งานได้ทันที
       </p>
-      <UrlForm />
+      <HomeForm />
     </section>
   );
 }
