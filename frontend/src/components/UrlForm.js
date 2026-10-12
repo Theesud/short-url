@@ -78,7 +78,7 @@ export default function UrlForm() {
             type="text"
             inputMode="url"
             autoComplete="off"
-            placeholder="วางลิงก์ยาว ๆ ที่นี่ เช่น https://www.synerry.com"
+            placeholder="วางลิงก์ยาว ๆ ที่นี่"
             value={value}
             onChange={(event) => setValue(event.target.value)}
           />
